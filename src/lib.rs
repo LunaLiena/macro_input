@@ -86,7 +86,7 @@ macro_rules! input {
                         break;
                     }
                     Err(e) => {
-                        eprintln!("Некорректный ввод '{}'. Ожидался тип {}. Ошибка: {}",buffer,stringify!($ty),e);
+                        eprintln!("Invalid entry '{}'. The type {} was expected. Error: {}",buffer,stringify!($ty),e);
                         $on_error(e);
                     }
                 }
@@ -104,7 +104,7 @@ macro_rules! input {
                 
                 let mut buffer = String::new();
                 if let Err(err) = io::stdin().read_line(&mut buffer) {
-                    eprintln!("Ошибка чтения ввода: {}", err);
+                    eprintln!("input read error: {}", err);
                     continue;
                 }
 
@@ -116,7 +116,7 @@ macro_rules! input {
                         break;
                     }
                     Err(e) => {
-                        eprintln!("Некорректный ввод '{}'. Ожидался тип {}. Ошибка: {}", buffer, stringify!($ty), e);
+                        eprintln!("Incorrect input '{}'. The type {} was expected. Error: {}", buffer, stringify!($ty), e);
                     }
                 }
             }
