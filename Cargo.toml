@@ -1,0 +1,8 @@
+[package]
+name = "macro_input"
+version = "0.1.0"
+edition = "2021"
+description = "A crate that provides a macro for handling user input with type safety and custom error handling."
+authors = ["Radmir <radmir0099lol@gmail.com>"]
+keywords = ["macro", "input", "stream", "user input", "rust"]
+license = "MIT"

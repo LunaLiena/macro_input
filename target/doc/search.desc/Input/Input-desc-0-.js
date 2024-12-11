@@ -1,0 +1,1 @@
+searchState.loadedDescShard("Input", 0, "Модуль для обработки …\nМакрос <code>input!</code> для упрощения работы …\nФункция <code>input</code> для получения …")
