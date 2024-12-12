@@ -100,7 +100,7 @@ macro_rules! input {
 
             loop {
                 print!("{} ({}): ", $desc,stringify!($ty));
-                std::io::stdout().flush().unwrap(); // Вывод приглашения для ввода
+                std::io::stdout().flush().unwrap();
                 
                 let mut buffer = String::new();
                 if let Err(err) = io::stdin().read_line(&mut buffer) {
