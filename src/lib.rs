@@ -39,6 +39,32 @@
 /// - The macro relies on the `FromStr` trait for parsing, so the types used must implement `FromStr`.
 /// - Custom error handlers receive the parsing error as an argument and can be used for logging or additional logic./// ```
 
+/// # Examples
+///
+/// Example of use with a custom error handler:
+///
+/// ```rust
+/// use macro_input::input;
+///
+/// fn main() {
+/// // // Define a variable to store the input
+/// let mut value: f64 = 0.0;
+///
+/// // // Use a macro with a custom error handler
+/// input!(value, “Enter a real number”, f64, |err| {
+/// // // Process parsing error
+/// eprintln!(“Input error: {}. Try again.”, err);
+/// });
+///
+/// // Print the result
+/// println!(“You have entered: {}”, value);
+/// }
+/// ```
+///
+/// # Notes
+/// - The custom handler receives an error object of type `std::num::ParseFloatError`
+//// (or other error type corresponding to the parsed value).
+
 #[macro_export]
 macro_rules! input {
     ($field:expr, $desc:expr, $ty:ty, $on_error:expr) => {
