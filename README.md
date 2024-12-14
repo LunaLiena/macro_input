@@ -1,18 +1,20 @@
 # macro_input
 
-`macro_input` — это библиотека для обработки пользовательского ввода в Rust. Она предоставляет удобный макрос `input!`, который позволяет легко получать и обрабатывать ввод данных с консоли.
+`macro_input` is a library for handling user input in Rust. It provides a handy `input!` macro that makes it easy to receive and process console input.
 
-## Особенности
+## Features
 
-- Поддержка ввода для любого типа, который реализует трейт `FromStr` (например, `i32`, `f64`).
-- Автоматическая обработка ошибок ввода и повтор запроса до получения корректного значения.
-- Возможность использования пользовательских обработчиков ошибок.
-- Удобный интерфейс для обработки ввода с указанием типа и сообщения.
+- Input support for any type that implements the `FromStr` trait (e.g. `i32`, `f64`).
+- Automatic handling of input errors and repeat the request until a valid value is obtained.
+- Possibility to use custom error handlers.
+- Convenient interface for input processing with type and message indication.
 
-## Установка
+## Installation
 
-Добавьте `macro_input` в ваш проект, указав зависимость в файле `Cargo.toml`:
+Add ``macro_input`` to your project by specifying the dependency in the ``Cargo.toml`` file:
 
-```toml
-[dependencies]
-macro_input = "0.1.1"
+``toml
+[dependencies].
+macro_input = “0.1.1”
+
+Translated with DeepL.com (free version)
