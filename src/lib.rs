@@ -10,12 +10,13 @@
 /// - Handles invalid input gracefully by prompting the user to try again.
 /// - Allows custom error handling via an optional callback.
 
+///Basic usage
+
 /// #Examples
 ///
 ///
-///Basic usage
 /// ```rust
-/// use input::input;
+/// use macro_input::input;
 ///
 /// fn main() {
 ///     // Define a variable to store the input value
@@ -26,50 +27,8 @@
 ///
 ///     // Output the entered value
 ///     println!("You entered: {}", number);
-///
-///     // Define a variable for floating-point input
-///     let mut float_value: f64 = 0.0;
-///
-///     // Call the macro with a custom error handler for invalid input
-///     input!(float_value, "Enter a float value", f64, |err| {
-///         eprintln!("Custom handler: Failed to parse input -> {}", err);
-///     });
-///
-///     // Output the entered floating-point value
-///     println!("You entered: {}", float_value);
 /// }
 /// ```
-///
-/// Macro `input!` for user input handling.
-///
-/// Example usage without custom error handler:
-/// ```rust
-/// fn main() {
-///     // Define a variable to store the input value
-///     let mut number: i32;
-///
-///     // Call the macro to prompt the user for input (no custom error handler)
-///     input!(number, "Enter a number", i32);
-///
-///     // Output the entered value
-///     println!("You entered: {}", number);
-/// }
-/// ```
-///
-/// Example usage with custom error handler:
-/// ```rust
-/// fn main() {
-///     // Define a variable for floating-point input
-///     let mut height: f64 = 0.0;
-///
-///     // Call the macro with a custom error handler for invalid input
-///     input!(height, "Enter your height", f64, |err| {
-///         eprintln!("Custom handler: Failed to parse input -> {}", err);
-///     });
-///
-///     // Output the entered floating-point value
-///     println!("You entered: {}", height);
-/// }
 ///
 /// # Behavior
 /// The `input!` macro does not crash when invalid input is provided. Instead:
@@ -121,6 +80,12 @@ macro_rules! input {
             loop {
                 print!("{} ({}): ", $desc,stringify!($ty));
                 std::io::stdout().flush().unwrap();
+                let mut buffer = String::new();
+                if let Err(err) = io::stdin().read_line(&mut buffer) {
+                    eprintln!("Input read error: {}", err);
+                    continue;
+                }
+
                 buffer = buffer.trim().to_string();
 
                 match buffer.parse::<$ty>() {

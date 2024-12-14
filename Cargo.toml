@@ -7,3 +7,4 @@ authors = ["Radmir <radmir0099lol@gmail.com>"]
 keywords = ["macro", "input", "stream", "user input", "rust"]
 repository = "https://github.com/LunaLiena/macro_input.git"
 license = "MIT"
+readme = "README.md"
