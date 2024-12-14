@@ -8,5 +8,4 @@ keywords = ["macro", "input", "stream", "user_input", "rust"]
 repository = "https://github.com/LunaLiena/macro_input.git"
 license = "MIT"
 readme = "README.md"
-include = ["src/**", "Cargo.toml", "README.md", "LICENSE"]
 exclude = ["/target"]
