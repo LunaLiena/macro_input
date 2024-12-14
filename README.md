@@ -9,11 +9,3 @@
 - Possibility to use custom error handlers.
 - Convenient interface for input processing with type and message indication.
 
-## Installation
-
-Add ``macro_input`` to your project by specifying the dependency in the ``Cargo.toml`` file:
-
-``toml
-[dependencies].
-macro_input = “0.1.1”
-
