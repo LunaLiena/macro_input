@@ -17,4 +17,3 @@ Add ``macro_input`` to your project by specifying the dependency in the ``Cargo.
 [dependencies].
 macro_input = “0.1.1”
 
-Translated with DeepL.com (free version)
