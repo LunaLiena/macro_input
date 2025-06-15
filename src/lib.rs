@@ -121,5 +121,65 @@ where
     }
 }
 
+/// Modules for handling user input in concurrent and asynchronous contexts
+/// Asynchronous input processing module
+///
+/// This module provides utilities for non-blocking user input in async contexts.
+/// Designed for use with async runtimes like tokio or async-std.
+///
+/// # Features
+/// - Non-blocking stdin reading
+/// - Timeout support for input operations
+/// - Async cancellation support
+/// - Integration with popular async runtimes
+///
+/// # Examples
+/// ```
+/// use crate::async_input::AsyncInput;
+/// 
+/// #[tokio::main]
+/// async fn main() {
+///     let mut input = AsyncInput::new();
+///     match input.read_line().await {
+///         Ok(line) => println!("You entered: {}", line),
+///         Err(e) => eprintln!("Input error: {}", e),
+///     }
+/// }
+/// ```
+///
+/// # Safety
+/// All operations are thread-safe when used with proper async runtime.
 pub mod async_input;
+
+
+/// Thread-safe synchronous input processing module
+///
+/// Provides synchronized access to stdin across multiple threads.
+/// Uses internal mutexes to prevent data races while maintaining
+/// blocking behavior expected in synchronous contexts.
+///
+/// # Features
+/// - Mutex-protected stdin access
+/// - Blocking read operations
+/// - Thread-local storage options
+/// - Graceful error handling
+///
+/// # Examples
+/// ```
+/// use crate::thread_safe_input::ThreadSafeInput;
+/// use std::thread;
+///
+/// let input = ThreadSafeInput::new();
+/// let handle = thread::spawn(move || {
+///     match input.read_line() {
+///         Ok(line) => println!("Thread got: {}", line),
+///         Err(e) => eprintln!("Error: {}", e),
+///     }
+/// });
+/// handle.join().unwrap();
+/// ```
+///
+/// # Implementation Notes
+/// Uses `std::sync::Mutex` internally with proper poisoning handling.
+/// Consider using `parking_lot` mutexes for better performance in contention-heavy scenarios.
 pub mod thread_safe_input;

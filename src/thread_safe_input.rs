@@ -1,67 +1,95 @@
+//! Thread-safe input handling utilities
 use std::sync::{Arc, Mutex};
 
-// Global mutext for synchronize input/output
+
+/// Global mutex for synchronizing console I/O across threads
+///
+/// This lock ensures thread-safe access to stdin/stdout when multiple threads
+/// need to interact with the user simultaneously. The mutex is:
+/// - Automatically initialized on first use (via `Lazy`)
+/// - Wrapped in `Arc` for shared ownership
+/// - Protects against interleaved output and input races
+///
+/// # Example
+/// ```
+/// use self::INPUT_LOCK;
+/// use std::thread;
+///
+/// let handles: Vec<_> = (0..5).map(|i| {
+///     thread::spawn(move || {
+///         let _guard = INPUT_LOCK.lock().unwrap();
+///         println!("Thread {} got the lock", i);
+///         // Safe to do I/O here
+///     })
+/// }).collect();
+///
+/// for handle in handles {
+///     handle.join().unwrap();
+/// }
+/// ```
 pub static INPUT_LOCK: once_cell::sync::Lazy<Arc<Mutex<()>>> =
     once_cell::sync::Lazy::new(|| Arc::new(Mutex::new(())));
 
-/// Thread-safe macro for reading user input from the console.
+
+/// Thread-safe macro for reading user input in concurrent applications
 ///
-/// `safe_input!` ensures safe input handling in a multithreaded context by using a global `Mutex`
-/// (`INPUT_LOCK`) to synchronize access to standard input/output. This is useful when multiple threads
-/// may prompt the user simultaneously.
+/// This macro provides synchronized input handling with these guarantees:
+/// 1. Atomic I/O operations (no interleaved prompts/output)
+/// 2. Thread-safe value parsing
+/// 3. Graceful error recovery
 ///
-/// # Features
-/// - Thread-safe I/O via a global `Mutex`
-/// - Graceful error handling with input retry
-/// - Supports custom error handlers
-/// - Accepts any type that implements `FromStr`
-///
-/// # Syntax
-/// ```rust
-/// safe_input!(variable, "Prompt text", Type);
-/// safe_input!(variable, "Prompt text", Type, |err| { custom_error_handling });
-/// ```
+/// # Thread Safety Model
+/// - Uses global [`INPUT_LOCK`] to serialize access to stdin/stdout
+/// - Each macro invocation holds the lock for the entire operation
+/// - Prevents these common threading issues:
+///   - Interleaved console output
+///   - Stdin contention
+///   - Race conditions in prompt-response flows
 ///
 /// # Examples
 ///
-/// ## Basic usage
+/// ## Basic Multi-threaded Usage
 /// ```rust
-/// use macro_input::safe_input;
+/// use crate::thread_safe_input::safe_input;
+/// use std::thread;
 ///
-/// fn main() {
-///     let mut age: u32 = 0;
-///     safe_input!(age, "Enter your age", u32);
-///     println!("Age: {}", age);
+/// let mut threads = vec![];
+/// for i in 0..3 {
+///     threads.push(thread::spawn(move || {
+///         let mut value = 0;
+///         safe_input!(value, &format!("Thread {}: Enter number", i), i32);
+///         value
+///     }));
+/// }
+///
+/// for t in threads {
+///     println!("Thread returned: {}", t.join().unwrap());
 /// }
 /// ```
 ///
-/// ## With a custom error handler
+/// ## With Error Handling
 /// ```rust
-/// use macro_input::safe_input;
+/// use crate::thread_safe_input::safe_input;
+/// use std::thread;
 ///
-/// fn main() {
-///     let mut value: f64 = 0.0;
-///     safe_input!(value, "Enter a number", f64, |err| {
-///         eprintln!("Parsing error: {}", err);
+/// thread::spawn(|| {
+///     let mut data = String::new();
+///     safe_input!(data, "Enter your name", String, |e| {
+///         eprintln!("Error in thread: {:?}", e);
 ///     });
-///     println!("Value: {}", value);
-/// }
+///     println!("Hello, {}", data);
+/// }).join().unwrap();
 /// ```
 ///
-/// # Thread Safety
-/// This macro uses a global `Mutex` (`INPUT_LOCK`) to synchronize access to `stdin` and `stdout`,
-/// ensuring that only one thread can prompt the user at a time and preventing mixed output.
+/// # Performance Considerations
+/// - The global lock means only one thread can do I/O at a time
+/// - For high-throughput systems, consider:
+///   - Dedicated I/O thread with channel communication
+///   - Buffering multiple prompts before locking
+/// - Lock is held only during actual I/O operations
 ///
-/// # Notes
-/// - The input type must implement the `FromStr` trait.
-/// - The optional error handler (4th argument) can be any closure or function accepting:
-///   - a parsing error of type `<T as FromStr>::Err`, or
-///   - a `std::io::Error` if reading the line fails.
-/// - The macro loops until valid input is entered.
-///
-/// # Related
-/// - [`input!`] — a similar macro without thread safety (not synchronized)
-/// - [`INPUT_LOCK`] — the global `Mutex` used to ensure thread-safe I/O
+/// # Panics
+/// - If the mutex is poisoned (a thread panicked while holding the lock)
 #[macro_export]
 macro_rules! safe_input {
     ($field:expr,$desc:expr,$ty:ty,$on_error:expr) => {{

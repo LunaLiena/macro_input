@@ -1,6 +1,6 @@
 [package]
 name = "macro_input"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 description = "A crate that provides a macro for handling user input with type safety and custom error handling."
 authors = ["Radmir <radmir0099lol@gmail.com>"]
