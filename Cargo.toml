@@ -9,3 +9,6 @@ repository = "https://github.com/LunaLiena/macro_input.git"
 license = "MIT"
 readme = "README.md"
 exclude = ["/target"]
+
+[dependencies]
+tokio = {version = "1.45.1",features = ["full"]}

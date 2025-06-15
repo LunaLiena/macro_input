@@ -1,3 +1,5 @@
+pub mod async_input;
+
 /// Module for processing user input.
 ///
 ///
@@ -51,79 +53,84 @@
 /// let mut value: f64 = 0.0;
 ///
 /// // // Use a macro with a custom error handler
-/// input!(value, “Enter a real number”, f64, |err| {
+/// input!(value, "Enter a real number", f64, |err| {
 /// // // Process parsing error
-/// eprintln!(“Input error: {}. Try again.”, err);
+/// eprintln!("Input error: {}. Try again.", err);
 /// });
 ///
 /// // Print the result
-/// println!(“You have entered: {}”, value);
+/// println!("You have entered: {}", value);
 /// }
 /// ```
 ///
 /// # Notes
 /// - The custom handler receives an error object of type `std::num::ParseFloatError`
 //// (or other error type corresponding to the parsed value).
-
 #[macro_export]
 macro_rules! input {
-    ($field:expr, $desc:expr, $ty:ty, $on_error:expr) => {
-        {
-            use std::io::{self, Write};
-            use std::str::FromStr;
+    ($field:expr, $desc:expr, $ty:ty, $on_error:expr) => {{
+        use std::io::{self, Write};
+        use std::str::FromStr;
 
-            loop {
-                print!("{} ({}): ", $desc,stringify!($ty));
-                std::io::stdout().flush().unwrap(); 
-                
-                let mut buffer = String::new();
-                if let Err(err) = io::stdin().read_line(&mut buffer) {
-                    eprintln!("Input read error: {}", err);
-                    $on_error(err);
-                    continue;
+        loop {
+            print!("{} ({}): ", $desc, stringify!($ty));
+            std::io::stdout().flush().unwrap();
+
+            let mut buffer = String::new();
+            if let Err(err) = io::stdin().read_line(&mut buffer) {
+                eprintln!("Input read error: {}", err);
+                $on_error(err);
+                continue;
+            }
+
+            buffer = buffer.trim().to_string();
+
+            match buffer.parse::<$ty>() {
+                Ok(value) => {
+                    $field = value;
+                    break;
                 }
-
-                buffer = buffer.trim().to_string();
-
-                match buffer.parse::<$ty>() {
-                    Ok(value) => {
-                        $field = value;
-                        break;
-                    }
-                    Err(e) => {
-                        eprintln!("Invalid entry '{}'. The type {} was expected. Error: {}",buffer,stringify!($ty),e);
-                        $on_error(e);
-                    }
+                Err(e) => {
+                    eprintln!(
+                        "Invalid entry '{}'. The type {} was expected. Error: {}",
+                        buffer,
+                        stringify!($ty),
+                        e
+                    );
+                    $on_error(e);
                 }
             }
         }
-    };
-    ($field:expr, $desc:expr, $ty:ty) => {
-        {
-            use std::io::{self, Write};
-            use std::str::FromStr;
+    }};
+    ($field:expr, $desc:expr, $ty:ty) => {{
+        use std::io::{self, Write};
+        use std::str::FromStr;
 
-            loop {
-                print!("{} ({}): ", $desc,stringify!($ty));
-                std::io::stdout().flush().unwrap();
-                let mut buffer = String::new();
-                if let Err(err) = io::stdin().read_line(&mut buffer) {
-                    eprintln!("Input read error: {}", err);
-                    continue;
+        loop {
+            print!("{} ({}): ", $desc, stringify!($ty));
+            std::io::stdout().flush().unwrap();
+            let mut buffer = String::new();
+            if let Err(err) = io::stdin().read_line(&mut buffer) {
+                eprintln!("Input read error: {}", err);
+                continue;
+            }
+
+            buffer = buffer.trim().to_string();
+
+            match buffer.parse::<$ty>() {
+                Ok(value) => {
+                    $field = value;
+                    break;
                 }
-
-                buffer = buffer.trim().to_string();
-
-                match buffer.parse::<$ty>() {
-                    Ok(value) => {
-                        $field = value;
-                        break;
-                    }
-                    Err(e) => {
-                        eprintln!("Incorrect input '{}'. The type {} was expected. Error: {}", buffer, stringify!($ty), e);
-                    }
+                Err(e) => {
+                    eprintln!(
+                        "Incorrect input '{}'. The type {} was expected. Error: {}",
+                        buffer,
+                        stringify!($ty),
+                        e
+                    );
                 }
             }
         }
-    };
+    }};
 }
