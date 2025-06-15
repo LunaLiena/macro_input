@@ -1,4 +1,9 @@
-pub mod async_input;
+use std::{
+    io::{BufRead, Write},
+    str::FromStr,
+};
+
+extern crate once_cell;
 
 /// Module for processing user input.
 ///
@@ -69,68 +74,52 @@ pub mod async_input;
 #[macro_export]
 macro_rules! input {
     ($field:expr, $desc:expr, $ty:ty, $on_error:expr) => {{
-        use std::io::{self, Write};
-        use std::str::FromStr;
-
-        loop {
-            print!("{} ({}): ", $desc, stringify!($ty));
-            std::io::stdout().flush().unwrap();
-
-            let mut buffer = String::new();
-            if let Err(err) = io::stdin().read_line(&mut buffer) {
-                eprintln!("Input read error: {}", err);
-                $on_error(err);
-                continue;
-            }
-
-            buffer = buffer.trim().to_string();
-
-            match buffer.parse::<$ty>() {
-                Ok(value) => {
-                    $field = value;
-                    break;
-                }
-                Err(e) => {
-                    eprintln!(
-                        "Invalid entry '{}'. The type {} was expected. Error: {}",
-                        buffer,
-                        stringify!($ty),
-                        e
-                    );
-                    $on_error(e);
-                }
-            }
-        }
+        let mut stdin = std::io::stdin().lock();
+        let mut stdout = std::io::stdout();
+        $field = $crate::read_input(&mut stdin, &mut stdout, $desc, Some($on_error));
     }};
     ($field:expr, $desc:expr, $ty:ty) => {{
-        use std::io::{self, Write};
-        use std::str::FromStr;
+        let mut stdin = std::io::stdin().lock();
+        let mut stdout = std::io::stdout();
+        $field = $crate::read_input::<_, $ty, _>(&mut stdin, &mut stdout, $desc, None);
+    }};
+}
 
-        loop {
-            print!("{} ({}): ", $desc, stringify!($ty));
-            std::io::stdout().flush().unwrap();
-            let mut buffer = String::new();
-            if let Err(err) = io::stdin().read_line(&mut buffer) {
-                eprintln!("Input read error: {}", err);
-                continue;
-            }
+pub(crate) fn read_input<R: BufRead, T: FromStr, F: FnMut(&T::Err)>(
+    reader: &mut R,
+    writer: &mut impl Write,
+    desc: &str,
+    mut on_error: Option<F>,
+) -> T
+where
+    T::Err: std::fmt::Display,
+{
+    loop {
+        write!(writer, "{} ({}): ", desc, std::any::type_name::<T>()).unwrap();
+        writer.flush().unwrap();
 
-            buffer = buffer.trim().to_string();
-
-            match buffer.parse::<$ty>() {
-                Ok(value) => {
-                    $field = value;
-                    break;
-                }
-                Err(e) => {
-                    eprintln!(
-                        "Incorrect input '{}'. The type {} was expected. Error: {}",
-                        buffer,
-                        stringify!($ty),
-                        e
-                    );
+        let mut buffer = String::new();
+        if reader.read_line(&mut buffer).is_err() {
+            if let Some(f) = &on_error {}
+            continue;
+        }
+        let buffer = buffer.trim();
+        match buffer.parse::<T>() {
+            Ok(val) => return val,
+            Err(err) => {
+                writeln!(
+                    writer,
+                    "Invalid input '{}'. Expected type. Error: {}",
+                    buffer, err
+                )
+                .unwrap();
+                if let Some(f) = &on_error.as_mut() {
+                    // if read_line return error
                 }
             }
         }
-    }};
+    }
 }
+
+pub mod async_input;
+pub mod thread_safe_input;
