@@ -104,7 +104,7 @@ macro_rules! safe_input {
         use std::str::FromStr;
 
         // Захватываем глобальный мьютекс
-        let _lock = $crate::INPUT_LOCK.lock().unwrap();
+        let _lock = self::INPUT_LOCK.lock().unwrap();
 
         loop {
             print!("{} ({}): ", $desc, stringify!($ty));
