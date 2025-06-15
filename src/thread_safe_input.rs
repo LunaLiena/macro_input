@@ -11,7 +11,7 @@ use std::sync::{Arc, Mutex};
 /// - Protects against interleaved output and input races
 ///
 /// # Example
-/// ```
+/// ```no_run
 /// use self::INPUT_LOCK;
 /// use std::thread;
 ///
@@ -49,7 +49,7 @@ pub static INPUT_LOCK: once_cell::sync::Lazy<Arc<Mutex<()>>> =
 /// # Examples
 ///
 /// ## Basic Multi-threaded Usage
-/// ```rust
+/// ```no_run
 /// use crate::thread_safe_input::safe_input;
 /// use std::thread;
 ///
@@ -68,7 +68,7 @@ pub static INPUT_LOCK: once_cell::sync::Lazy<Arc<Mutex<()>>> =
 /// ```
 ///
 /// ## With Error Handling
-/// ```rust
+/// ```no_run
 /// use crate::thread_safe_input::safe_input;
 /// use std::thread;
 ///

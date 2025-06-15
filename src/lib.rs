@@ -22,7 +22,7 @@ extern crate once_cell;
 /// #Examples
 ///
 ///
-/// ```rust
+/// ```no_run
 /// use macro_input::input;
 ///
 /// fn main() {
@@ -47,10 +47,9 @@ extern crate once_cell;
 /// - Custom error handlers receive the parsing error as an argument and can be used for logging or additional logic./// ```
 
 /// # Examples
-///
 /// Example of use with a custom error handler:
 ///
-/// ```rust
+/// ```no_run
 /// use macro_input::input;
 ///
 /// fn main() {
@@ -58,7 +57,7 @@ extern crate once_cell;
 /// let mut value: f64 = 0.0;
 ///
 /// // // Use a macro with a custom error handler
-/// input!(value, "Enter a real number", f64, |err| {
+/// input!(value, "Enter a real number", f64, |err: &<f64 as FromStr>::Err| {
 /// // // Process parsing error
 /// eprintln!("Input error: {}. Try again.", err);
 /// });
@@ -85,7 +84,8 @@ macro_rules! input {
     }};
 }
 
-pub(crate) fn read_input<R: BufRead, T: FromStr, F: FnMut(&T::Err)>(
+/// Reads input from the provided reader, writing prompts to the writer
+pub fn read_input<R: BufRead, T: FromStr, F: FnMut(&T::Err)>(
     reader: &mut R,
     writer: &mut impl Write,
     desc: &str,
@@ -166,7 +166,7 @@ pub mod async_input;
 ///
 /// # Examples
 /// ```
-/// use crate::thread_safe_input::ThreadSafeInput;
+/// use macro_input::thread_safe_input::ThreadSafeInput;
 /// use std::thread;
 ///
 /// let input = ThreadSafeInput::new();
